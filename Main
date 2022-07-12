@@ -1,0 +1,135 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+from datetime import datetime, timedelta
+from collections import Counter
+import time
+
+nameList = []
+timeList = []
+
+driver = webdriver.Safari()
+driver.get("https://www.google.com.tw/")
+wait = WebDriverWait(driver, 10)
+
+def loginIg():
+    elem_ig = driver.find_element(By.NAME, "q")
+    elem_ig.send_keys("Instagram")
+    elem_ig.send_keys(Keys.RETURN)
+    elem_igLogin = wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, "Login")))
+    elem_igLogin.send_keys(Keys.RETURN)
+
+    username = wait.until(EC.element_to_be_clickable((By.NAME, "username")))
+    username.send_keys("mark.4209@gmail.com")
+
+    password = wait.until(EC.element_to_be_clickable((By.NAME, "password")))
+
+    pw = ['M', 'm', 1, 2, 2, 9, 1, 4, 9, 6, 0]
+
+    for i in range(len(pw)):
+        password.send_keys(pw[i])
+
+    password.send_keys(Keys.RETURN)
+
+    time.sleep(5)
+    savelogin = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "cmbtv")))
+    savelogin.send_keys(Keys.RETURN)
+
+    time.sleep(5)
+    notification = wait.until(EC.element_to_be_clickable((By.TAG_NAME, "button")))
+    notification.send_keys(Keys.RETURN)
+
+    dynamic = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "_acaz")))
+    dynamic.click()
+
+
+def obtainPostTime():
+    SCROLL_PAUSE_TIME = 0.5
+
+    postName = wait.until(EC.element_to_be_clickable(By.CLASS_NAME, '_aaqt'))
+    postTime = driver.find_element(By.TAG_NAME, 'time')
+
+    # Get scroll height
+    last_height = driver.execute_script("return document.body.scrollHeight")
+
+    while True:
+        # Scroll down to bottom
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+        # Wait to load page
+        time.sleep(SCROLL_PAUSE_TIME)
+
+        # Calculate new scroll height and compare with last scroll height
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:
+            break
+        last_height = new_height
+
+
+
+def obtainDynamicTime():
+
+    nameRef = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "_ac0q")))
+    timeRef = driver.find_element(By.TAG_NAME, "time")
+
+    name = nameRef.text
+    time = timeRef.text
+
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+
+    for timeType in time:
+        h = "0"
+        m = "0"
+        s = "0"
+        if timeType == "h":
+            for i in range(len(time) - 1):
+                h += time[i]
+
+        elif timeType == "m":
+            for i in range(len(time) - 1):
+                m += time[i]
+
+        else:
+            for i in range(len(time) - 1):
+                s += time[i]
+
+    postTime = datetime.today() - timedelta(hours=int(h), minutes=int(m), seconds=int(s))
+    postTime = postTime.strftime('%H:%M:%S')
+
+    nameList.append(name)
+    timeList.append(postTime)
+
+    print("Name: ", name)
+    print("Post Time: ", postTime)
+
+    next = driver.find_element(By.CLASS_NAME, "_ac0d")
+    next.send_keys(Keys.RETURN)
+
+def excuteObtainDynamicTime():
+    while (len(Counter(nameList).keys()) <= 50):
+        time.sleep(0.05)
+        try:
+            obtainDynamicTime()
+        except:
+            pass
+
+def excuteObtainPostTime():
+    print("")
+
+def main():
+    loginIg()
+    excuteFunction = input("What Function to be excuted? (Dynamics or Post)")
+    if excuteFunction == "Dynamics":
+        excuteObtainDynamicTime()
+    elif excuteFunction == "Post":
+        excuteObtainPostTime()
+
+    driver.close()
+
+
+print("nameList=", nameList)
+print("timeList=", timeList)
