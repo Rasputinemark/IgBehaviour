@@ -23,11 +23,15 @@ def loginIg():
     elem_igLogin.send_keys(Keys.RETURN)
 
     username = wait.until(EC.element_to_be_clickable((By.NAME, "username")))
-    username.send_keys("mark.4209@gmail.com")
+    username = input("Please Enter Your Username.")
+    username.send_keys(username)
 
     password = wait.until(EC.element_to_be_clickable((By.NAME, "password")))
 
-    pw = ['M', 'm', 1, 2, 2, 9, 1, 4, 9, 6, 0]
+    password = input("Please Enter Your Password.")
+    pw = []
+    for i in range(len(password)):
+        pw.append(password[i])
 
     for i in range(len(pw)):
         password.send_keys(pw[i])
